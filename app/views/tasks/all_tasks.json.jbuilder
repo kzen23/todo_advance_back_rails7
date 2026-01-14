@@ -4,5 +4,6 @@ json.array! @tasks do |task|
   json.explanation task.explanation
   json.deadlineDate task.deadline_date
   json.status task.status
+  json.priority task.priority
   json.genreId task.genre_id
 end

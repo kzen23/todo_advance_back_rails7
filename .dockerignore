@@ -1,0 +1,30 @@
+# Git関連
+.git
+.gitignore
+
+# ログファイル
+log/*
+tmp/*
+
+# 環境ファイル
+.env
+.env.*
+
+# 依存関係
+node_modules/
+
+# テストカバレッジ
+coverage/
+
+# エディタ設定
+.vscode/
+.idea/
+
+# OS関連
+.DS_Store
+Thumbs.db
+
+# その他
+*.swp
+*.swo
+*~

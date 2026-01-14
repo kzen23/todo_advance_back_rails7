@@ -1,13 +1,17 @@
 class TasksController < ApplicationController
-  before_action :select_task, only: [:update, :destroy, :update_status]
+  before_action :select_task, only: [:update, :destroy, :update_status, :duplicate]
   skip_before_action :verify_authenticity_token
+
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+  rescue_from ActiveRecord::RecordInvalid, with: :record_invalid
 
   def index
     tasks_all
   end
 
   def create
-    @result = Task.create(task_params)
+    result = Tasks::CreateService.new(params).call
+    @result = result.data
     tasks_all
   end
 
@@ -26,10 +30,20 @@ class TasksController < ApplicationController
     tasks_all
   end
 
+  def duplicate
+    result = Tasks::DuplicateService.call(@task)
+
+    if result.success?
+      render json: result.data, status: :created
+    else
+      render json: { error: result.errors }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def task_params
-    params.permit(:name, :explanation, :status).merge(genre_id: params[:genreId], deadline_date: params[:deadlineDate])
+    params.permit(:name, :explanation, :status, :priority).merge(genre_id: params[:genreId], deadline_date: params[:deadlineDate])
   end
 
   def select_task
@@ -39,5 +53,13 @@ class TasksController < ApplicationController
   def tasks_all
     @tasks = Task.all
     render :all_tasks
+  end
+
+  def record_not_found
+    render json: { error: 'Task not found' }, status: :not_found
+  end
+
+  def record_invalid(exception)
+    render json: { error: exception.message }, status: :unprocessable_entity
   end
 end
