@@ -1,7 +1,7 @@
 class GenresController < ApplicationController
   before_action :select_genre, only: [:destroy]
   skip_before_action :verify_authenticity_token
-  
+
   def index
     genres_all
   end

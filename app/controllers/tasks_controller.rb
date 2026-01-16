@@ -1,5 +1,5 @@
 class TasksController < ApplicationController
-  before_action :select_task, only: [:update, :destroy, :update_status, :duplicate]
+  before_action :select_task, only: %i[update destroy update_status duplicate]
   skip_before_action :verify_authenticity_token
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
@@ -36,14 +36,15 @@ class TasksController < ApplicationController
     if result.success?
       render json: result.data, status: :created
     else
-      render json: { error: result.errors }, status: :unprocessable_entity
+      render json: { error: result.errors }, status: :unprocessable_content
     end
   end
 
   private
 
   def task_params
-    params.permit(:name, :explanation, :status, :priority).merge(genre_id: params[:genreId], deadline_date: params[:deadlineDate])
+    params.permit(:name, :explanation, :status, :priority).merge(genre_id: params[:genreId],
+                                                                 deadline_date: params[:deadlineDate])
   end
 
   def select_task
@@ -60,6 +61,6 @@ class TasksController < ApplicationController
   end
 
   def record_invalid(exception)
-    render json: { error: exception.message }, status: :unprocessable_entity
+    render json: { error: exception.message }, status: :unprocessable_content
   end
 end
