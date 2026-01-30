@@ -59,11 +59,45 @@ SOLID原則、Rails Way、およびTDD（テスト駆動開発）に従い、保
 # Commands
 開発で頻繁に使用するコマンドです。
 
-## Test & Lint
-- **RSpec (テスト)**: `bundle exec rspec`
-- **RuboCop (Lint)**: `bundle exec rubocop`
+## Docker（このプロジェクトの実行環境）
+- **起動**: `docker-compose up` または `dcu`
+- **停止**: `docker-compose down` または `dcd`
+- **再ビルド**: `docker-compose build` または `dcb`
+- **コンテナ内でコマンド実行**: `docker-compose exec web bash` または `dce web bash`
 
-## Rails
-- **Server**: `rails s`
-- **Console**: `rails c`
-- **DB Migrate**: `rails db:migrate`
+## Test & Lint（Docker内で実行）
+- **RSpec (テスト)**: `docker-compose exec web bundle exec rspec`
+- **RuboCop (Lint)**: `docker-compose exec web bundle exec rubocop`
+
+## Rails（Docker内で実行）
+- **Server**: Docker起動時に自動で起動（ポート3001）
+- **Console**: `docker-compose exec web bundle exec rails console`
+- **DB Migrate**: `docker-compose exec web bundle exec rails db:migrate`
+
+# エイリアス設定
+ユーザーの手作業時の効率化のため、以下のエイリアスが設定されています（`.bash_profile`、`.bashrc`に定義）。
+
+## 重要な注意
+- **エイリアスはユーザーがGit Bashで手動作業する際に使用します**
+- **Claude Codeは通常のフルコマンドを使用してください**（エイリアスは非インタラクティブシェルでは動作しません）
+
+## bundle exec 短縮形
+- `be` = `bundle exec`
+
+## Rails関連（bundle exec付き）
+- `bers` = `bundle exec rails server`
+- `berc` = `bundle exec rails console`
+- `berspec` = `bundle exec rspec`
+- `berubocop` = `bundle exec rubocop`
+- `berdb` = `bundle exec rails db`
+- `berr` = `bundle exec rails routes`
+
+## Docker関連
+- `dc` = `docker-compose`
+- `dcu` = `docker-compose up`
+- `dcd` = `docker-compose down`
+- `dcb` = `docker-compose build`
+- `dce` = `docker-compose exec`
+
+## その他
+- `ridk` = `C:/Ruby32-x64/bin/ridk.cmd`（Ruby Development Kit、フルパス不要）
