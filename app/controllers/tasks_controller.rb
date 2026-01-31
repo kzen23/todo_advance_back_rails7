@@ -40,6 +40,14 @@ class TasksController < ApplicationController
     end
   end
 
+  def report
+    summary = Task.report_summary
+
+    @total_count = summary[:total_count]
+    @count_by_status = summary[:count_by_status]
+    @completion_rate = summary[:completion_rate]
+  end
+
   private
 
   def task_params

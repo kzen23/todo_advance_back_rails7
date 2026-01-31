@@ -176,4 +176,76 @@ RSpec.describe 'Tasks API', type: :request do
       end
     end
   end
+
+  describe 'GET /tasks/report' do
+    let(:genre) { Genre.create(name: 'テストジャンル') }
+
+    context 'when there are no tasks' do
+      it 'returns zero counts and completion rate' do
+        get '/tasks/report'
+
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to match(%r{application/json})
+
+        json_response = response.parsed_body
+        expect(json_response['totalCount']).to eq(0)
+        expect(json_response['countByStatus']['notStarted']).to eq(0)
+        expect(json_response['countByStatus']['inProgress']).to eq(0)
+        expect(json_response['countByStatus']['completed']).to eq(0)
+        expect(json_response['completionRate']).to eq(0.0)
+      end
+    end
+
+    context 'when there are tasks with various statuses' do
+      before do
+        # not_started: 2, in_progress: 3, completed: 1
+        Task.create(name: 'Task 1', status: 'not_started', genre: genre)
+        Task.create(name: 'Task 2', status: 'not_started', genre: genre)
+        Task.create(name: 'Task 3', status: 'in_progress', genre: genre)
+        Task.create(name: 'Task 4', status: 'in_progress', genre: genre)
+        Task.create(name: 'Task 5', status: 'in_progress', genre: genre)
+        Task.create(name: 'Task 6', status: 'completed', genre: genre)
+      end
+
+      it 'returns correct total count' do
+        get '/tasks/report'
+
+        expect(response).to have_http_status(:ok)
+        json_response = response.parsed_body
+        expect(json_response['totalCount']).to eq(6)
+      end
+
+      it 'returns correct count by status' do
+        get '/tasks/report'
+
+        json_response = response.parsed_body
+        expect(json_response['countByStatus']['notStarted']).to eq(2)
+        expect(json_response['countByStatus']['inProgress']).to eq(3)
+        expect(json_response['countByStatus']['completed']).to eq(1)
+      end
+
+      it 'returns completion rate with one decimal place' do
+        get '/tasks/report'
+
+        json_response = response.parsed_body
+        # 1 completed / 6 total = 16.666... -> 16.7
+        expect(json_response['completionRate']).to eq(16.7)
+      end
+    end
+
+    context 'when all tasks are completed' do
+      before do
+        Task.create(name: 'Task 1', status: 'completed', genre: genre)
+        Task.create(name: 'Task 2', status: 'completed', genre: genre)
+      end
+
+      it 'returns 100% completion rate' do
+        get '/tasks/report'
+
+        json_response = response.parsed_body
+        expect(json_response['totalCount']).to eq(2)
+        expect(json_response['completionRate']).to eq(100.0)
+      end
+    end
+  end
 end
